@@ -219,37 +219,41 @@ with st.sidebar:
                 st.session_state.df = generate_ai_intervention(sample_size)
                 st.session_state.dataset_name = "Esempio 3: Uso dell'AI vs Performance"
             set_preset_dag(st.session_state.dataset_name)
+            st.session_state.last_uploaded_file = None
             st.success("Dati demo generati e DAG configurato!")
             st.rerun()
             
     else:
         uploaded_file = st.file_uploader("Carica CSV o Excel:", type=["csv", "xlsx", "xls"])
         if uploaded_file is not None:
-            try:
-                if uploaded_file.name.endswith(".csv"):
-                    uploaded_df = pd.read_csv(uploaded_file)
-                else:
-                    uploaded_df = pd.read_excel(uploaded_file)
-                
-                numeric_cols = uploaded_df.select_dtypes(include=[np.number]).columns.tolist()
-                
-                if len(numeric_cols) < 2:
-                    st.error("Il dataset deve contenere almeno 2 variabili numeriche!")
-                else:
-                    st.session_state.df = uploaded_df[numeric_cols].dropna()
-                    st.session_state.dataset_name = f"Custom: {uploaded_file.name}"
-                    st.session_state.dag_nodes = numeric_cols
-                    st.session_state.dag_edges = []
-                    st.session_state.treatment = numeric_cols[0]
-                    st.session_state.outcome = numeric_cols[1]
-                    st.session_state.controls = []
-                    st.session_state.sel_treatment = numeric_cols[0]
-                    st.session_state.sel_outcome = numeric_cols[1]
-                    st.session_state.sel_controls = []
-                    st.success("Caricamento completato!")
-                    st.rerun()
-            except Exception as e:
-                st.error(f"Errore caricamento: {e}")
+            # Check if this is a newly uploaded file to avoid resetting state on every rerun
+            if 'last_uploaded_file' not in st.session_state or st.session_state.last_uploaded_file != uploaded_file.name:
+                try:
+                    if uploaded_file.name.endswith(".csv"):
+                        uploaded_df = pd.read_csv(uploaded_file)
+                    else:
+                        uploaded_df = pd.read_excel(uploaded_file)
+                    
+                    numeric_cols = uploaded_df.select_dtypes(include=[np.number]).columns.tolist()
+                    
+                    if len(numeric_cols) < 2:
+                        st.error("Il dataset deve contenere almeno 2 variabili numeriche!")
+                    else:
+                        st.session_state.df = uploaded_df[numeric_cols].dropna()
+                        st.session_state.dataset_name = f"Custom: {uploaded_file.name}"
+                        st.session_state.dag_nodes = numeric_cols
+                        st.session_state.dag_edges = []
+                        st.session_state.treatment = numeric_cols[0]
+                        st.session_state.outcome = numeric_cols[1]
+                        st.session_state.controls = []
+                        st.session_state.sel_treatment = numeric_cols[0]
+                        st.session_state.sel_outcome = numeric_cols[1]
+                        st.session_state.sel_controls = []
+                        st.session_state.last_uploaded_file = uploaded_file.name
+                        st.success("Caricamento completato!")
+                        st.rerun()
+                except Exception as e:
+                    st.error(f"Errore caricamento: {e}")
                 
     st.markdown("---")
     # Quick reset button for current DAG
