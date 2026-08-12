@@ -232,6 +232,7 @@ with st.sidebar:
             # Check if this is a newly uploaded file (content hash is different) to avoid resetting state on every rerun
             if 'last_uploaded_file_hash' not in st.session_state or st.session_state.last_uploaded_file_hash != file_hash:
                 try:
+                    uploaded_file.seek(0)  # Reset file pointer to the beginning of the stream
                     if uploaded_file.name.endswith(".csv"):
                         uploaded_df = pd.read_csv(uploaded_file)
                     else:
@@ -265,7 +266,7 @@ with st.sidebar:
         st.success("DAG ripristinato!")
         st.rerun()
         
-    st.markdown("<br><br><span style='font-size:0.75rem; color:#64748b;'>Sviluppato per laboratori di formazione docenti. Versione 1.2 (MD5 Active)</span>", unsafe_allow_html=True)
+    st.markdown("<br><br><span style='font-size:0.75rem; color:#64748b;'>Sviluppato per laboratori di formazione docenti. Versione 1.3 (MD5 & Seek Active)</span>", unsafe_allow_html=True)
 
 # ----------------- MAIN APP DASHBOARD LAYOUT -----------------
 
