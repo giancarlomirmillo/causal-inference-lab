@@ -155,6 +155,17 @@ def set_preset_dag(dataset_name):
         st.session_state.outcome = 'Voto Finale (0-100)'
         st.session_state.controls = ['Motivazione']
 
+    else:
+        # Reset custom dataset DAG to initial state (empty edges)
+        if 'df' in st.session_state and st.session_state.df is not None:
+            all_cols = st.session_state.df.columns.tolist()
+            st.session_state.dag_nodes = all_cols
+            st.session_state.dag_edges = []
+            if len(all_cols) >= 2:
+                st.session_state.treatment = all_cols[0]
+                st.session_state.outcome = all_cols[1]
+            st.session_state.controls = []
+
     # Sync with widget keys to force UI update
     st.session_state.sel_treatment = st.session_state.treatment
     st.session_state.sel_outcome = st.session_state.outcome
@@ -266,7 +277,7 @@ with st.sidebar:
         st.success("DAG ripristinato!")
         st.rerun()
         
-    st.markdown("<br><br><span style='font-size:0.75rem; color:#64748b;'>Sviluppato per laboratori di formazione docenti. Versione 1.3 (MD5 & Seek Active)</span>", unsafe_allow_html=True)
+    st.markdown("<br><br><span style='font-size:0.75rem; color:#64748b;'>Sviluppato per laboratori di formazione docenti. Versione 1.4 (Failsafe DAG)</span>", unsafe_allow_html=True)
 
 # ----------------- MAIN APP DASHBOARD LAYOUT -----------------
 
